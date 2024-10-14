@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ship Chat Interface</title>
+    <script>
+        async function sendMessage() {
+            const userMessage = document.getElementById("userMessage").value;
+            
+            const response = await fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userMessage: userMessage })
+            });
+            
+            const data = await response.json();
+            document.getElementById("response").textContent = data.reply;
+        }
+    </script>
+</head>
+<body>
+    <h1>Ship Chat Interface</h1>
+
+    <label for="userMessage">Enter Ship Name or Query:</label>
+    <input type="text" id="userMessage" name="userMessage" required>
+
+    <button onclick="sendMessage()">Send</button>
+
+    <h2>Response:</h2>
+    <div id="response"></div>
+</body>
+</html>
