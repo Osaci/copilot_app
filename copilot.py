@@ -62,7 +62,7 @@ class CopilotClient():
 
     def launch_browser(self):
         #uc_params = self.uc_params or {}
-        chrome_path = r'C:\Power Bi\Ships\Files\chatgpt_selenium_automation\talkingheads-0.5.2\Copilot\src\Chrome\Application\chrome.exe'
+        chrome_path = r'Chrome/Application/chrome.exe'
 #find_chrome_executable()
         if not chrome_path:
             raise ValueError('unable to find chrome path')
@@ -429,7 +429,7 @@ class CopilotClient():
             logging.debug("Version number is provided: %d", version_num)
             return version_num
 
-        chrome_path = r'C:\Power Bi\Ships\Files\chatgpt_selenium_automation\talkingheads-0.5.2\Copilot\src\Chrome\Application\chrome.exe'
+        chrome_path = r'Chrome/Application/chrome.exe'
 
 #find_chrome_executable()
 
