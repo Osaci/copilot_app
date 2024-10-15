@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ship Chat Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .chat-container {
+            width: 50%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+        }
+        .chat-box p {
+            margin: 10px 0;
+        }
+        .user-message {
+            text-align: right;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .bot-response {
+            text-align: left;
+            font-style: italic;
+            color: #555;
+        }
+        #userMessage {
+            width: 75%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        async function sendMessage() {
+            const userMessage = document.getElementById("userMessage").value;
+            if (userMessage.trim() === '') return;
+
+            // Add user message to chat
+            const chatBox = document.getElementById("chatBox");
+            const userMessageElem = document.createElement('p');
+            userMessageElem.className = 'user-message';
+            userMessageElem.textContent = userMessage;
+            chatBox.appendChild(userMessageElem);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Send user message to backend
+            const response = await fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userMessage: userMessage })
+            });
+
+            const data = await response.json();
+
+            // Add bot response to chat
+            const botMessageElem = document.createElement('p');
+            botMessageElem.className = 'bot-response';
+            botMessageElem.textContent = data.reply;
+            chatBox.appendChild(botMessageElem);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Clear input field
+            document.getElementById("userMessage").value = '';
+        }
+
+        // Send message when Enter is pressed
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputField = document.getElementById("userMessage");
+            inputField.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Ship Chat Interface</h1>
+
+    <div class="chat-container">
+        <div id="chatBox" class="chat-box">
+            <!-- Chat messages will be displayed here -->
+        </div>
+
+        <div>
+            <input type="text" id="userMessage" name="userMessage" placeholder="Enter Ship Name or Query..." required>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</body>
+</html>
