@@ -29,7 +29,7 @@ from selenium.webdriver.remote.shadowroot import ShadowRoot
 
 class CopilotClient():
    
-    def __init__(self, url: str, client_name: str, logged_in: bool = False, headless: bool = True, tag: str = None, user_data_dir: str = None, auto_save: bool = False, save_path: str = None, timeout_dur: int = 40, uc_params: dict = None, driver_arguments: Union[List, Dict] = None, incognito: bool = True, wait_time: int = 40, driver_version: int = None): #, verbose: bool = False):
+    def __init__(self, url: str, client_name: str, logged_in: bool = False, headless: bool = True, tag: str = None, user_data_dir: str = None, auto_save: bool = False, save_path: str = None, timeout_dur: int = 40, uc_params: dict = None, driver_arguments: Union[List, Dict] = None, wait_time: int = 40, driver_version: int = None): #, verbose: bool = False):
         """
         # Create a new of the logger
         r_level = logging.getLogger().getEffectiveLevel()
@@ -53,7 +53,7 @@ class CopilotClient():
         self.user_data_dir = user_data_dir
         self.uc_params = uc_params
         self.driver_arguments = driver_arguments
-        self.incognito = incognito
+        #self.incognito = incognito
         self.driver_version = driver_version
         self.save_path = save_path
         self.auto_save = auto_save
@@ -62,26 +62,58 @@ class CopilotClient():
 
     def launch_browser(self):
         #uc_params = self.uc_params or {}
+        chrome_path = find_chrome_executable()
+        if not chrome_path:
+            raise ValueError('unable to find chrome path')
+
+      
         options = uc.ChromeOptions()
+        options.binary_location = chrome_path
         options.headless = self.headless 
-        if self.incognito:
-            options.add_argument("--incognito")
+
+
+        browser_arguments = {
+
+            #headless flags
+            "disable-blink-features": "AutomationControlled",
+            "disable-dev-shm-usage": True,
+            "no-sandbox": True,
+            "disable-infobars": True,
+
+            #browser mimicing
+            "enable-gpu": True,
+            "window-size": "1920,1080",
+            "start-maximized": True,
+            "disable-extensions": True,
+            "disable-software-rasterizer": True,
+
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.5481.100 Safari/537.36",
+
+            "disable-features": "ChromeDetection,OutOfBlinkColors"
+
+            }
+
+        if self.user_data_dir:
+            options.add_argument(f"--user_data_dir={self.user_data_dir}")
 
         if self.driver_arguments:
-            if isinstance(driver_arguments, dict):
-                driver_arguments = list(map(
-                    lambda kv: f"--{kv[0]}" + ("" if kv[1] is True else f"={kv[1]}"),
-                    driver_arguments.items()
-                ))
+            if isinstance(self.driver_arguments, dict):
+                driver_arguments = {**browser_arguments,  **self.driver_arguments}              
+            else: 
+                driver_arguments = browser_arguments
+        else:
+            driver_arguments = browser_arguments
 
-            _ = list(map(
-                options.add_argument,
-                driver_arguments
-            ))
+        driver_arguments = list(map(
+            lambda kv: f"--{kv[0]}" + ("" if kv[1] is True else f"={kv[1]}"),
+            driver_arguments.items()
+        ))
 
+        _ = list(map(options.add_argument,driver_arguments))
+               
 
         self.browser = uc.Chrome(
-            user_data_dir=self.user_data_dir,
+            #user_data_dir=self.user_data_dir,
             options=options,
             headless=self.headless,
             #version_main=self.detect_chrome_version(self.driver_version),
@@ -95,7 +127,7 @@ class CopilotClient():
         self.wait_object = WebDriverWait(self.browser, self.wait_time)
         self.browser.get(self.url)
         self.logged_in = False
-        self.browser.maximize_window()
+        #self.browser.maximize_window()
         self.chat_history = pd.DataFrame(columns=["role", "is_regen", "content"]) 
         self.set_save_path(self.save_path)       
 
@@ -110,16 +142,19 @@ class CopilotClient():
                 accept.click()
                 time.sleep(2)
             else:
-                print('loggin in')
+                print('no cookies')
            
             username = 'miikka.karava@gmail.com'
             password = 'tvJ6w/1d8TW4=x6'
 
+
             log_in = self.find_or_fail(By.ID, ':ra:', dom_element=shadow_element)
             # (By.XPATH, "//input[@value='sign in']")
-            log_in.click()
-            
-            time.sleep(2)
+            if log_in:
+                log_in.click()
+                time.sleep(2)
+            else:
+                print('proceed loggin in')
 
             account = self.find_or_fail(By.CSS_SELECTOR, "button[title='Sign in']", dom_element=shadow_element)
             account.click()
@@ -138,29 +173,23 @@ class CopilotClient():
             password_field.send_keys(password)
             password_field.send_keys(Keys.ENTER)
 
-            time.sleep(5)
-            try:
-                accept = self.find_or_fail(By.ID, 'acceptButton', dom_element=shadow_element)
-                accept.click()
-            except Exception as e:
-                print('no accept exception')
-                return True
+            next = self.find_or_fail(By.ID, 'iNext', dom_element=shadow_element)
+            if next:
+                next.click()             
+                time.sleep(2)
+            else:
+                print('no next button')
 
-            try:
-                accept = self.find_or_fail(By.ID, 'iNext', dom_element=shadow_element)
-                accept.click()
-            except Exception as e:
-                print('no next exception')
-                return True
-            
+            time.sleep(5)
+            accept = self.find_or_fail(By.ID, 'acceptButton', dom_element=shadow_element)
+            if accept:
+                accept.click()             
+                time.sleep(2)
+            else:
+                print('no accept button')
+  
             time.sleep(5)
 
-            """
-            get_started = self.find_or_fail(By.CSS_SELECTOR, "button[title='Get started']", dom_element=shadow_element)
-            get_started.click()
-            
-            time.sleep(5)
-            """
             self.logged_in = True
             return True
             
@@ -223,8 +252,6 @@ class CopilotClient():
         if not button:
             return False
 
-        if not button:
-            return False
         wait = 20       
 
         #wait.until(EC.element_to_be_clickable(button))
@@ -244,42 +271,26 @@ class CopilotClient():
         """
         try:
             get_response = self.browser.find_elements(By.CSS_SELECTOR, "div[class='space-y-3 break-words']")
-            text_response = get_response[-1]
+            if get_response:
+ 
+                text_response = get_response[-1]
+                print(text_response)
             #text = text_response.replace('\r', ' ').strip()
-            text = text_response.text
+                text = text_response.text
+            else:      
+                print("No response")
+
+            print(text)
+            return text
+
             #text = re.sub(r'\d+\s*', '', text)
             #text = re.sub(r'\s+\.', '', text)
 
         #text = re.sub(r'^\s*$', '', text, flags=re.MULTILINE)
-            print(text)
-            return text
+
         except Exception as e:
             print('get_response exception: {str(e)}')
             return False         
-
-
-        time.sleep(2) 
-
-        #text = get_response.replace('\r', ' ').strip()
-
-        try:
-
-            text_response = get_response[-1]
-            #text = text_response.replace('\r', ' ').strip()
-            text = text_response.text
-            #text = re.sub(r'\d+\s*', '', text)
-            #text = re.sub(r'\s+\.', '', text)
-
-        #text = re.sub(r'^\s*$', '', text, flags=re.MULTILINE)
-            print(text)
-        #text = "\n\n".join(get_response.text(separator=' ')).strip()
-        # Fix citations
-        #text = re.sub(r"\n(\d{1,2})", r"[\g<1>]", text)
-
-            return text
-        except Exception as e:
-            print('get_last_response exception: {str(e)}')
-            return False
 
 
 
