@@ -73,12 +73,12 @@ class CopilotClient():
             #download and install chrome
             subprocess.run(['curl', '-Lo', f'{temp_dir}/chrome-linux64.zip',
                             'https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.58/linux64/chrome-linux64.zip'], check=True)
-            subprocess.run(['unzip', f'{temp_dir}/chrome-linux64.zip', '-d', 'opt/google/chrome'], check=True)  
+            subprocess.run(['unzip', f'{temp_dir}/chrome-linux64.zip', '-d', '/opt/google/chrome'], check=True)  
 
             #download and install chrome driver
             subprocess.run(['curl', '-Lo', f'{temp_dir}/chromedriver-linux64.zip',
                             'https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.58/linux64/chromedriver-linux64.zip'], check=True)
-            subprocess.run(['unzip', f'{temp_dir}/chromedriver-linux64.zip', '-d', 'usr/local/bin'], check=True) 
+            subprocess.run(['unzip', f'{temp_dir}/chromedriver-linux64.zip', '-d', '/usr/local/bin'], check=True) 
 
             print("installed chrome and driver")
         except subprocess.CalledProcessError as e:
