@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, render_template
 import queue
+import os
 import threading
 import time
 import logging
@@ -18,10 +19,12 @@ from pathlib import Path
 from typing import Union, Dict, List
 import undetected_chromedriver as uc
 from undetected_chromedriver import find_chrome_executable
+from webdriver_manager.chrome import ChromeDriverManager
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
@@ -29,7 +32,7 @@ from selenium.webdriver.remote.shadowroot import ShadowRoot
 
 class CopilotClient():
    
-    def __init__(self, url: str, client_name: str, logged_in: bool = False, headless: bool = True, tag: str = None, user_data_dir: str = None, auto_save: bool = False, save_path: str = None, timeout_dur: int = 40, uc_params: dict = None, driver_arguments: Union[List, Dict] = None, wait_time: int = 40, driver_version: int = None): #, verbose: bool = False):
+    def __init__(self, url: str, client_name: str, logged_in: bool = False, headless: bool = True, tag: str = None, user_data_dir: str = None, auto_save: bool = False, save_path: str = None, timeout_dur: int = None, uc_params: dict = None, driver_arguments: Union[List, Dict] = None, wait_time: int = None, driver_version: int = None): #, verbose: bool = False):
         """
         # Create a new of the logger
         r_level = logging.getLogger().getEffectiveLevel()
@@ -49,21 +52,43 @@ class CopilotClient():
         self.headless = headless
         self.tag = tag
         self.wait_object = None 
-        self.wait_time = wait_time
+        self.wait_time = wait_time = 20
         self.user_data_dir = user_data_dir
         self.uc_params = uc_params
         self.driver_arguments = driver_arguments
         #self.incognito = incognito
-        self.driver_version = driver_version
+        self.driver_version = driver_version = 129
         self.save_path = save_path
         self.auto_save = auto_save
         self.timeout_dur = timeout_dur
 
 
+    def install_chrome_and_driver(self):
+
+        temp_dir = "C:\\temp"
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+        
+        try:
+            #download and install chrome
+            subprocess.run(['curl', '-Lo', f'{temp_dir}\\chrome-linux64.zip',
+                            'https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.58/linux64/chrome-linux64.zip'], check=True)
+            subprocess.run(['tar', '-xf', f'{temp_dir}\\chrome-linux64.zip', '-C', 'C:\\Program Files\\Google\\Chrome'], check=True)  
+
+            #download and install chrome driver
+            subprocess.run(['curl', '-Lo', f'{temp_dir}\\chromedriver-linux64.zip',
+                            'https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.58/linux64/chromedriver-linux64.zip'], check=True)
+            subprocess.run(['tar', '-xf', f'{temp_dir}\\chromedriver-linux64.zip', '-C', 'C:\\Program Files\\Google\\Chrome'], check=True) 
+
+            print("installed chrome and driver")
+        except subprocess.CalledProcessError as e:
+            print(f'exception in chrome installation: {e}')
+            raise        
+
+
     def launch_browser(self):
         #uc_params = self.uc_params or {}
-        chrome_path = r'Chrome/Application/chrome.exe'
-#find_chrome_executable()
+        chrome_path = find_chrome_executable() or 'C:\\Program Files\\Google\\Chrome'
         if not chrome_path:
             raise ValueError('unable to find chrome path')
 
@@ -80,6 +105,7 @@ class CopilotClient():
             "disable-dev-shm-usage": True,
             "no-sandbox": True,
             "disable-infobars": True,
+            "lang": "en-US",
 
             #browser mimicing
             "enable-gpu": True,
@@ -112,12 +138,13 @@ class CopilotClient():
 
         _ = list(map(options.add_argument,driver_arguments))
                
-
+        service=Service('C:\\Program Files\\Google\\ChromeDriver')
         self.browser = uc.Chrome(
             #user_data_dir=self.user_data_dir,
+            service=service,
             options=options,
             headless=self.headless,
-            #version_main=self.detect_chrome_version(self.driver_version),
+            version_main=self.detect_chrome_version(self.driver_version),
             #**uc_params,
         )
 
@@ -429,9 +456,7 @@ class CopilotClient():
             logging.debug("Version number is provided: %d", version_num)
             return version_num
 
-        chrome_path = r'Chrome/Application/chrome.exe'
-
-#find_chrome_executable()
+        chrome_path = find_chrome_executable() #r'Chrome/Application/chrome.exe'
 
         out = subprocess.check_output([chrome_path, "--version"])
         out = re.search(r"Google\s+Chrome\s+(\d{3})", out.decode())
@@ -487,4 +512,3 @@ class CopilotClient():
         "xlsx": "to_xlsx",
         "xml": "to_xml",
     }
-
