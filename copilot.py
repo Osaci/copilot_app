@@ -65,20 +65,20 @@ class CopilotClient():
 
     def install_chrome_and_driver(self):
 
-        temp_dir = "C:\\temp"
+        temp_dir = "/tmp"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
         
         try:
             #download and install chrome
-            subprocess.run(['curl', '-Lo', f'{temp_dir}\\chrome-linux64.zip',
+            subprocess.run(['curl', '-Lo', f'{temp_dir}/chrome-linux64.zip',
                             'https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.58/linux64/chrome-linux64.zip'], check=True)
-            subprocess.run(['tar', '-xf', f'{temp_dir}\\chrome-linux64.zip', '-C', 'C:\\Program Files\\Google\\Chrome'], check=True)  
+            subprocess.run(['unzip', f'{temp_dir}/chrome-linux64.zip', '-d', 'opt/google/chrome'], check=True)  
 
             #download and install chrome driver
-            subprocess.run(['curl', '-Lo', f'{temp_dir}\\chromedriver-linux64.zip',
+            subprocess.run(['curl', '-Lo', f'{temp_dir}/chromedriver-linux64.zip',
                             'https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.58/linux64/chromedriver-linux64.zip'], check=True)
-            subprocess.run(['tar', '-xf', f'{temp_dir}\\chromedriver-linux64.zip', '-C', 'C:\\Program Files\\Google\\Chrome'], check=True) 
+            subprocess.run(['unzip', f'{temp_dir}/chromedriver-linux64.zip', '-d', 'usr/local/bin'], check=True) 
 
             print("installed chrome and driver")
         except subprocess.CalledProcessError as e:
@@ -88,7 +88,7 @@ class CopilotClient():
 
     def launch_browser(self):
         #uc_params = self.uc_params or {}
-        chrome_path = find_chrome_executable() or 'C:\\Program Files\\Google\\Chrome'
+        chrome_path = find_chrome_executable() or "/opt/google/chrome"
         if not chrome_path:
             raise ValueError('unable to find chrome path')
 
@@ -138,7 +138,7 @@ class CopilotClient():
 
         _ = list(map(options.add_argument,driver_arguments))
                
-        service=Service('C:\\Program Files\\Google\\ChromeDriver')
+        service=Service("usr/local/bin/chromedriver")
         self.browser = uc.Chrome(
             #user_data_dir=self.user_data_dir,
             service=service,
@@ -456,7 +456,7 @@ class CopilotClient():
             logging.debug("Version number is provided: %d", version_num)
             return version_num
 
-        chrome_path = find_chrome_executable() #r'Chrome/Application/chrome.exe'
+        chrome_path = find_chrome_executable() or "/opt/google/chrome"
 
         out = subprocess.check_output([chrome_path, "--version"])
         out = re.search(r"Google\s+Chrome\s+(\d{3})", out.decode())
