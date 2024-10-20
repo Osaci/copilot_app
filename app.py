@@ -7,10 +7,9 @@ from copilot import CopilotClient
 
 app = Flask(__name__)
 
-# Route to serve the main page with the chat interface
 prompt = queue.Queue()
-username = 'miikka.karava@gmail.com'
-password = 'tvJ6w/1d8TW4=x6'
+username = 'miikka.karava@outlook.com'
+password = 'VxDH6a4Q8'
 shadow_element = None  
 
 @app.route('/')
@@ -45,12 +44,13 @@ def send_message():
                   
     except Exception as e:
         print(f'exception in response {str(e)}')
-        return f'exception {str(e)}'     
+        return f'exception {str(e)}'        
+
 if __name__ == '__main__':
 
-    client = CopilotClient(url = "https://copilot.microsoft.com", client_name = 'CopilotClient')
-    client.install_chrome_and_driver()
+    client = CopilotClient(url="https://copilot.microsoft.com", client_name='CopilotClient')#, verbose=True)
     client.launch_browser()
     client.login(shadow_element, username, password)
 
-    app.run(debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=False)
+
