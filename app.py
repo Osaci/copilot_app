@@ -47,10 +47,10 @@ def send_message():
         return f'exception {str(e)}'        
 
 if __name__ == '__main__':
-
+    port = int(os.environ.get('PORT', 5000))
     client = CopilotClient(url="https://copilot.microsoft.com", client_name='CopilotClient')#, verbose=True)
     client.launch_browser()
     client.login(shadow_element, username, password)
 
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)
 
