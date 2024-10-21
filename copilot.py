@@ -204,6 +204,12 @@ class CopilotClient():
             self.logged_in = True
             return True
 
+        except Exception as e:
+            print('login exception')
+            time.sleep(5)
+            self.logged_in = True
+            return True
+
     def reiterate(self, shadow_element, name, decade, prompt_queue: str):
         prompt_queue = f"{user_message}"
 
