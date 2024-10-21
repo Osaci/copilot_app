@@ -169,9 +169,13 @@ class CopilotClient():
             time.sleep(5)
 
             username_field = self.find_or_fail(By.ID, 'i0116', dom_element=shadow_element)
-            username_field.click()
-            username_field.send_keys(username)
-            username_field.send_keys(Keys.ENTER)
+            if username_field:
+ 
+                username_field.click()
+                username_field.send_keys(username)
+                username_field.send_keys(Keys.ENTER)
+            else:
+                print('username field not found')
 
             time.sleep(5)
 
@@ -197,13 +201,6 @@ class CopilotClient():
   
             time.sleep(5)
 
-            self.logged_in = True
-            return True
-            
-
-        except Exception as e:
-            print('login exception')
-            time.sleep(5)
             self.logged_in = True
             return True
 
