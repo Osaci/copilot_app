@@ -22,7 +22,7 @@ RUN chmod +x /usr/bin/chromium && chmod +x /usr/bin/chromedriver
 RUN pip install --no-cache-dir -r requirements.txt
 
 #expose app port
-EXPOSE 8080
+EXPOSE 5000
 
 #headless
 ENV CHROME_BIN=/usr/bin/chromium
@@ -34,5 +34,5 @@ ENV FLASK_APP=app.py
 
 #command to start
 #CMD gunicorn -b 0.0.0.0:8080 "app:create_app()"
-CMD gunicorn -b 0.0.0.0:${PORT:-8080} "app:create_app()"
+CMD gunicorn -b 0.0.0.0:${PORT:-5000} "app:create_app()"
 #CMD ["python", "app.py"]
