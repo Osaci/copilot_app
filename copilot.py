@@ -203,6 +203,7 @@ class CopilotClient():
 
             self.logged_in = True
             return True
+            
 
         except Exception as e:
             print('login exception')
