@@ -34,5 +34,5 @@ ENV FLASK_ENV=production
 
 #command to start
 #CMD gunicorn -b 0.0.0.0:5000 app:app  #"app:create_app()"
-CMD gunicorn -b 0.0.0.0:${PORT:-8080} app:app
-#CMD ["python", "app.py"]
+#CMD gunicorn -b 0.0.0.0:${PORT:-8080} app:app
+CMD ["python", "app.py"]
