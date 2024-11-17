@@ -21,7 +21,6 @@ import undetected_chromedriver as uc
 from undetected_chromedriver import find_chrome_executable
 
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
@@ -61,12 +60,13 @@ class CopilotClient():
         self.save_path = save_path
         self.auto_save = auto_save
         self.timeout_dur = timeout_dur
-
+      
 
     def launch_browser(self):
         #uc_params = self.uc_params or {}
-        chrome_path = os.getenv('CHROME_BIN', '/usr/bin/chromium')  #r'Chrome/Application/chrome.exe' 
-        chromedriver_path = os.getenv('CHROMEDRIVER_PATH', '/usr/bin/chromedriver') #r'chromedriver-win64\chromedriver.exe' 
+        #webdriver_url = "http://host.docker.internal:4444/wd/hub"
+        chrome_path = os.getenv('CHROME_BIN', '/usr/bin/google-chrome') 
+        chromedriver_path = os.getenv('CHROMEDRIVER_PATH', '/usr/bin/chromedriver') 
 #find_chrome_executable()
         if not chrome_path:
             raise ValueError('unable to find chrome path')
@@ -119,6 +119,7 @@ class CopilotClient():
         service=Service(chromedriver_path)
         self.browser = uc.Chrome(
             #user_data_dir=self.user_data_dir,
+            #command_executor=webdriver_url,
             service=service,
             options=options,
             headless=self.headless,
@@ -140,90 +141,112 @@ class CopilotClient():
 
         time.sleep(5)
 
-
     def login(self, shadow_element, username: str = None, password: str = None):
         
-        try:
-            accept = self.find_or_fail(By.CSS_SELECTOR, "button[title='Accept']", dom_element=shadow_element)
-            if accept:
-                accept.click()
-                time.sleep(2)
-            else:
-                print('no cookies')
+        max_retries = 3
+        retries = 0
+        while retries < max_retries:
+
+            try:
+                accept = self.find_or_fail(By.CSS_SELECTOR, "button[title='Accept']", dom_element=shadow_element)
+                if accept:
+                    accept.click()
+                    time.sleep(2)
+                else:
+                    print('no cookies')
            
-            username = 'miikka.karava@outlook.com'
-            password = 'VxDH6a4Q8'
+                #username = 'miikka.karava@outlook.com'
+                #password = 'VxDH6a4Q8'
 
 
-            log_in = self.find_or_fail(By.ID, ':ra:', dom_element=shadow_element)
+                log_in = self.find_or_fail(By.ID, ':ra:', dom_element=shadow_element)
             # (By.XPATH, "//input[@value='sign in']")
-            if log_in:
-                log_in.click()
-                time.sleep(2)
-            else:
-                print('proceed loggin in')
+                if log_in:
+                    log_in.click()
+                    time.sleep(2)
+                else:
+                    print('proceed loggin in')
+                
+                account = self.find_or_fail(By.CSS_SELECTOR, "button[title='Sign in']", dom_element=shadow_element)
+                if account:
+                    account.click()
+                    time.sleep(5)
+                elif not account:
+                    print('Sign in not found, retrying')
+                    retries +=1
+                    js_script = "window.location.href = 'https://copilot.microsoft.com';"
+                    self.browser.execute_script(js_script)
+                    #continue 
 
-            account = self.find_or_fail(By.CSS_SELECTOR, "button[title='Sign in']", dom_element=shadow_element)
-            account.click()
+                username_field = self.find_or_fail(By.ID, 'i0116', dom_element=shadow_element)
 
-            time.sleep(5)
+                if username_field:
+                    username_field.click()
+                    username_field.send_keys(username)
+                    username_field.send_keys(Keys.ENTER)
+                    time.sleep(5)
+                elif not username_field:
+                    print('username field not found, retrying')
+                    retries +=1
+                    js_script = "window.location.href = 'https://copilot.microsoft.com';"
+                    self.browser.execute_script(js_script)
+                    #continue 
 
-            username_field = self.find_or_fail(By.ID, 'i0116', dom_element=shadow_element)
-            if username_field:
- 
-                username_field.click()
-                username_field.send_keys(username)
-                username_field.send_keys(Keys.ENTER)
-            else:
-                print('username field not found')
+                password_field = self.find_or_fail(By.ID, 'i0118', dom_element=shadow_element)
 
-            time.sleep(5)
+                if password_field:
+                    password_field.click()
+                    password_field.send_keys(password)
+                    password_field.send_keys(Keys.ENTER)
+                    time.sleep(5)
+                elif not password_field:
+                    print('password field not found, retrying')
+                    retries +=1
+                    js_script = "window.location.href = 'https://copilot.microsoft.com';"
+                    self.browser.execute_script(js_script)
+                    #continue 
 
-            password_field = self.find_or_fail(By.ID, 'i0118', dom_element=shadow_element)
-            password_field.click()
-            password_field.send_keys(password)
-            password_field.send_keys(Keys.ENTER)
+                next = self.find_or_fail(By.ID, 'iNext', dom_element=shadow_element)
+                if next:
+                    next.click()             
+                    time.sleep(2)
+                else:
+                    print('no next button')
 
-            next = self.find_or_fail(By.ID, 'iNext', dom_element=shadow_element)
-            if next:
-                next.click()             
-                time.sleep(2)
-            else:
-                print('no next button')
-
-            time.sleep(5)
-            accept = self.find_or_fail(By.ID, 'acceptButton', dom_element=shadow_element)
-            if accept:
-                accept.click()             
-                time.sleep(2)
-            else:
-                print('no accept button')
-  
-            time.sleep(5)
-
-            self.logged_in = True
-            return True
-            
-
-        except Exception as e:
-            print('login exception')
-            time.sleep(5)
-            self.logged_in = True
-            return True
+                time.sleep(5)
+                accept = self.find_or_fail(By.ID, 'acceptButton', dom_element=shadow_element)
+                if accept:
+                    accept.click()             
+                    time.sleep(2)
+                    self.logged_in = True
+                    return True
+                else:
+                    print('no accept button')
+               
+                time.sleep(5)
+                self.logged_in = True
+                return True
+                 
+            except Exception as e:
+                print('login exception')
+                #retries +=1
+                self.logged_in = True
+                return True
+                time.sleep(5)
 
     def reiterate(self, shadow_element, name, decade, prompt_queue: str):
-        prompt_queue = f"{user_message}"
+
+        #prompt_queue = f"{user_message}"
 
         try:
            
             get_response = self.interact(shadow_element, prompt_queue)
 
-            if get_response:
-                if "I'm sorry" in get_response:  
-                    return False    
+            if get_response:  
+                return get_response    
  
-                else:
-                    return True
+            else:
+                return "no response"
 
         except Exception as e:
             print(f'exception processing: {str(e)}')
@@ -241,7 +264,6 @@ class CopilotClient():
         else:
             return False
 
-      
 
     def is_ready_to_prompt(self, shadow_element, text_area) -> bool:
         """
@@ -438,7 +460,7 @@ class CopilotClient():
             logging.debug("Version number is provided: %d", version_num)
             return version_num
 
-        chrome_path = os.getenv('CHROME_BIN', '/usr/bin/chromium')  #r'Chrome/Application/chrome.exe'
+        chrome_path = os.getenv('CHROME_BIN', '/usr/bin/google-chrome') 
 
 #find_chrome_executable()
 
