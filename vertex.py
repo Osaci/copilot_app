@@ -11,21 +11,22 @@ class VertexClient():
             "gemini-experimental",
             system_instruction=[textsi_1]
         )
-        chat = model.start_chat()
+        chat = model.start_chat(response_validation=False)
         response = chat.send_message(
             [prompt_queue],
             generation_config=generation_config,
             safety_settings=safety_settings          
         )
         print(response)
-        #text = re.search(r'|text: "|/*?', response)
         text = response.candidates[0].content.parts[0].text
-        print(text)
-        return text
+        res = re.sub(r"\*", "", text) 
+        res = re.sub(r"`", '"', res)
+        print(res)
+        return res
 textsi_1 = """ """
 
 generation_config = {
-    "max_output_tokens": 1024,
+    "max_output_tokens": 8100,
     "temperature": 0.2,
     "top_p": 0.8,
 }
