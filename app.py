@@ -49,7 +49,7 @@ def send_message():
         #response = requests.post('http://host.docker.internal:8080/send-message', json=data)
         #response = response.json()
 
-        user_message = response.get('userMessage', '')
+        user_message = data.get('userMessage', '')
         print(user_message)
     
  
@@ -60,9 +60,7 @@ def send_message():
             print(f'added user message: {user_message}')
 
             response = None
-            timeout = 10
-            start_time = time.time()
-            while response is None #and time.time() - start_time < timeout:
+            while response is None: 
                 time.sleep(1)
                 if not prompt.empty():
                     prompt_queue = prompt.get()
