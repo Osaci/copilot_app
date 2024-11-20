@@ -32,19 +32,46 @@
         .chat-box p {
             margin: 10px 0;
         }
+
+        .chat-box::-webkit-scrollbar {
+            width: 10px;
+            background-color: #FFECBB;
+            border-radius: 5px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: #BCA063; 
+            border-radius: 5px;
+            border: 1px solid #BCA063;           
+        }
+
+        .chat-box::-webkit-scrollbar-thumb:hover {
+            background-color: #60512C; 
+        }
+
+        .chat-box::-webkit-scrollbar-track {
+            background-color: #FFECBB;
+            border-radius: 5px;
+        }            
+
+        .chat-box {
+            scrollbar-width: thin;
+            scrollbar-color: #BCA063 #FFECBB;
+        }
+
         .input-container {
         display: flex;
         justify-content: space-between;
         gap: 10px;
-        padding: 
-        background-color: #BCA063;
+        padding: 10px;
+        background-color: #FFECBB;
         border-radius: 5px;
         box-shadow 0 0 8px rgba(0, 0, 0, 0.1);
         margin-top: 10px;
         }
 
         .user-message-box {
-            border: 2px solid #3c3c3c;
+            border: 0px solid #3c3c3c;
             padding: 10px;
             /*display: inline-block;*/
             border-radius: 5px;
@@ -55,7 +82,7 @@
         .user-message {
             flex-grow: 1;
             text-align: right;
-            font-weight: bold;
+            font-weight: /*bold*/
             color: #3c3c3c;
             margin: 0;
         }
@@ -66,16 +93,20 @@
             color: #3c3c3c;
         }
         #userMessage {
-            width: 75%;
+            flex-grow: 1;
             padding: 10px;
             font-size: 16px;
-            color: #ffffff;
+            border: 5px solid #BCA063;
             border-radius: 5px;
-            background-color: #BCA063
+            color: #3c3c3c;
+            background-color: #FFECBB;
+            border-radius: 5px;
+            outline: none;
+            transition: boder-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         #userMessage:focus {
-            border-color: #3c3c3c;
+            border-color: #816D41;
             box-shadow: 0 0 5px rgba(129, 109, 65, 0.5);
 }
 
@@ -84,12 +115,15 @@
             font-size: 16px;
             background-color: #BCA063;
             color: #3c3c3c;
-            border-radius: 5px;
-            border: 2px;
+            border-radius: 5px; 
+            border: 5px solid #BCA063;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+
         button:hover {
             background-color: #816D41;
+            border: 5px solid #816D41;
         }
     </style>
     <script>
