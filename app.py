@@ -15,44 +15,29 @@ password = 'VxDH6a4Q8'
 client = VertexClient()
 
 def login():
-
     global client
-    #if client is None:
     try:
         return "logged in"        
-
     except Exception as e:
-        #logging.error(f"Error initializing CopilotClient: {e}")
         client = None
         return False
-
-#login()
 
 @app.route('/')
 def home():
     try:
-        return render_template('index.html') #"<body>test</body>" #
+        return render_template('index.html') 
     except Exception as e:
         print(f'exception in index {str(e)}')
         return f'exception {str(e)}'
 
-
-#logging.basicConfig(level=logging.DEBUG)
 @app.route('/send-message', methods=['POST'])
 def send_message():
     try:
-    #logging.debug(f'message {request.json} received')
-
-    
         data = request.get_json()
-
-        #response = requests.post('http://host.docker.internal:8080/send-message', json=data)
-        #response = response.json()
 
         user_message = data.get('userMessage', '')
         print(user_message)
-    
- 
+
         if not prompt:
             return jsonify({'reply': "no message received."}), 400
         try:
@@ -80,7 +65,5 @@ def send_message():
         return jsonify({'error': f'exception during POST request {e}'}), 500
 
 if __name__ == '__main__':
-
-    #login()
     print('logged in')
     app.run(host="0.0.0.0", port=8080, debug=False)
