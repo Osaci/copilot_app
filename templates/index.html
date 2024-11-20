@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ship Chat Interface</title>
+    <title>Ship Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            padding: 20px;
+            background-color: #EAEBEC;
+            padding: 20px; 
         }
         h1 {
             text-align: center;
@@ -16,47 +16,80 @@
         .chat-container {
             width: 50%;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: #FFECBB;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
         .chat-box {
-            border: 1px solid #ccc;
+            border: 0px solid #ccc;
             padding: 10px;
             height: 300px;
             overflow-y: scroll;
-            background-color: #f9f9f9;
+            background-color: #FFECBB;
             margin-bottom: 10px;
         }
         .chat-box p {
             margin: 10px 0;
         }
+        .input-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 
+        background-color: #BCA063;
+        border-radius: 5px;
+        box-shadow 0 0 8px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+        }
+
+        .user-message-box {
+            border: 2px solid #3c3c3c;
+            padding: 10px;
+            /*display: inline-block;*/
+            border-radius: 5px;
+            margin: 10px 0;
+            background-color: #BCA063;
+            box-shadow: 0 0 5px rgba(129, 109, 65, 0.5);
+        }
         .user-message {
+            flex-grow: 1;
             text-align: right;
             font-weight: bold;
-            color: #007bff;
+            color: #3c3c3c;
+            margin: 0;
         }
+
         .bot-response {
             text-align: left;
-            font-style: italic;
-            color: #555;
+            font-style:
+            color: #3c3c3c;
         }
         #userMessage {
             width: 75%;
             padding: 10px;
             font-size: 16px;
+            color: #ffffff;
+            border-radius: 5px;
+            background-color: #BCA063
         }
+
+        #userMessage:focus {
+            border-color: #3c3c3c;
+            box-shadow: 0 0 5px rgba(129, 109, 65, 0.5);
+}
+
         button {
             padding: 10px 15px;
             font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+            background-color: #BCA063;
+            color: #3c3c3c;
+            border-radius: 5px;
+            border: 2px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #816D41;
         }
     </style>
     <script>
@@ -66,10 +99,13 @@
 
             // Add user message to chat
             const chatBox = document.getElementById("chatBox");
+            const userMessageBox = document.createElement('div');
+            userMessageBox.className = 'user-message-box';
             const userMessageElem = document.createElement('p');
             userMessageElem.className = 'user-message';
             userMessageElem.textContent = userMessage;
-            chatBox.appendChild(userMessageElem);
+            userMessageBox.appendChild(userMessageElem);
+            chatBox.appendChild(userMessageBox);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             // Send user message to backend
@@ -107,14 +143,14 @@
     </script>
 </head>
 <body>
-    <h1>Ship Chat Interface</h1>
+    <h1>Ship Chat</h1>
 
     <div class="chat-container">
         <div id="chatBox" class="chat-box">
             <!-- Chat messages will be displayed here -->
         </div>
 
-        <div>
+        <div class="input-container">
             <input type="text" id="userMessage" name="userMessage" placeholder="Enter Ship Name or Query..." required>
             <button onclick="sendMessage()">Send</button>
         </div>
