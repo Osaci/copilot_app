@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
 COPY . /app
 
 COPY ultra-function-439306-r4-97b92d9b43a2.json /app/ultra-function-439306-r4-97b92d9b43a2.json
-
+COPY certs/cert.pem /etc/ssl/certs/cert.pem
+COPY private/private.key /etc/ssl/private/private.key
 
 # Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
@@ -26,4 +27,4 @@ ENV GOOGLE_APPLICATION_CREDENTIALS="/app/ultra-function-439306-r4-97b92d9b43a2.j
 ENV FLASK_APP=app.py
 
 # Command to start the Flask app
-CMD ["python3", "app.py"]
+CMD ["python3", "app.py", "--certfile", "/etc/ssl/certs/cert.pem", "--keyfile", "/etc/ssl/private/private.key"]
